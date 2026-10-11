@@ -1,6 +1,6 @@
 # System architecture & citsy integration
 
-citsy-32blit is a **host**, not a second engine. The headless [citsy](https://github.com/TeriyakiGod/citsy) library parses `.bitsy` text, steps the world, and writes memory blocks. This repository implements `citsy::Host`, a 128×128 launcher, and RP2350 glue.
+citsy-32blit is a **host**, not a second engine. The headless [citsy](https://github.com/chili-chip/citsy) library parses `.bitsy` text, steps the world, and writes memory blocks. This repository implements `citsy::Host`, a 128×128 launcher, and RP2350 glue.
 
 ```mermaid
 flowchart TB

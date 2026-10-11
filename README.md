@@ -1,12 +1,12 @@
 # citsy-32blit
 
-A [32blit](https://github.com/chili-chip/32blit-sdk) player for the [citsy](https://github.com/TeriyakiGod/citsy) engine — a headless C++ reimplementation of [Bitsy](https://bitsy.org).
+A [32blit](https://github.com/chili-chip/32blit-sdk) player for the [citsy](https://github.com/chili-chip/citsy) engine — a headless C++ reimplementation of [Bitsy](https://bitsy.org).
 
 This repository is generated from the [chili-chip/game-template](https://github.com/chili-chip/game-template). It is the Phase 4 host: citsy stays engine-only; this project opens a window (or drives the handheld), maps buttons, blits the 128×128 framebuffer, and plays square-wave audio.
 
 The player boots into a 128×128 retro launcher (game carousel, settings, pause overlay) designed for a Waveshare RP2350 Plus + 128×128 16-bit SPI OLED, using the chili-chip 32blit SDK.
 
-Documentation is in [`docs/`](docs/index.md) and published next to the web player at [TeriyakiGod.github.io/citsy-32blit/docs](https://TeriyakiGod.github.io/citsy-32blit/docs/). The Emscripten game stays at the Pages root; MkDocs is nested under `/docs` by `.github/workflows/build.yml`.
+Documentation is in [`docs/`](docs/index.md) and published next to the web player at [chili-chip.github.io/citsy-32blit/docs](https://chili-chip.github.io/citsy-32blit/docs/). The Emscripten game stays at the Pages root; MkDocs is nested under `/docs` by `.github/workflows/build.yml`.
 
 Preview locally with:
 
@@ -20,9 +20,9 @@ mkdocs serve
 - CMake 3.20+
 - C++20 compiler
 - [32blit SDK](https://github.com/chili-chip/32blit-sdk) (sibling checkout at `../32blit-sdk`, or set `32BLIT_DIR`)
-- [32blit tools](https://github.com/32blit/32blit-tools): `pip install 32blit`
+- [32blit tools](https://github.com/32blit/32blit-tools): `pip install 32blit "bitstring<5"` (bitstring 5 breaks the tools)
 - SDL2, SDL2_image, SDL2_net (desktop)
-- A [citsy](https://github.com/chili-chip/citsy) checkout (sibling at `../citsy`, or `-DCITSY_DIR=...`). Without one, CMake fetches the pinned commit from `CMakeLists.txt`.
+- A [citsy](https://github.com/chili-chip/citsy) checkout (sibling at `../citsy`, or `-DCITSY_DIR=...`). Without one, CMake fetches the pinned commit from `CMakeLists.txt`. A local checkout is used as is and overrides the pin.
 
 ## Desktop build
 

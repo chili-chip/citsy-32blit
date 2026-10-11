@@ -1,6 +1,6 @@
 # citsy-32blit
 
-A [32blit](https://github.com/chili-chip/32blit-sdk) player for the [citsy](https://github.com/TeriyakiGod/citsy) engine — a headless C++ reimplementation of [Bitsy](https://bitsy.org) — running on a **Waveshare RP2350 Plus** with a **1.5" 128×128 RGB OLED**.
+A [32blit](https://github.com/chili-chip/32blit-sdk) player for the [citsy](https://github.com/chili-chip/citsy) engine — a headless C++ reimplementation of [Bitsy](https://bitsy.org) — running on a **Waveshare RP2350 Plus** with a **1.5" 128×128 RGB OLED**.
 
 citsy stays engine-only. This repository is the handheld host: it opens no windowing code of its own, maps buttons through the 32blit API, blits a 128×128 framebuffer, plays square-wave audio, and boots into a retro launcher (game list, settings, pause overlay).
 
@@ -28,7 +28,7 @@ citsy stays engine-only. This repository is the handheld host: it opens no windo
 
 [Hardware integration](hardware-integration.md){ .md-button .md-button--primary }
 [System architecture](citsy-32blit-architecture.md){ .md-button }
-[GitHub](https://github.com/TeriyakiGod/citsy-32blit){ .md-button }
+[GitHub](https://github.com/chili-chip/citsy-32blit){ .md-button }
 
 ## Hardware specifications
 
@@ -37,7 +37,7 @@ citsy stays engine-only. This repository is the handheld host: it opens no windo
 | **MCU** | [Waveshare RP2350 Plus](https://www.waveshare.com/wiki/RP2350-Plus) — RP2350A, dual ARM Cortex-M33 / Hazard3 RISC-V, up to 150 MHz |
 | **Screen** | 1.5" SPI RGB OLED, **128×128**, 16-bit **RGB565** (65K colours). chili-chip HAL driver: `dbi_ssd1351` |
 | **SDK** | Custom 32blit fork: [chili-chip/32blit-sdk](https://github.com/chili-chip/32blit-sdk) |
-| **Engine** | [citsy](https://github.com/TeriyakiGod/citsy) (headless Bitsy runtime, sibling checkout or FetchContent) |
+| **Engine** | [citsy](https://github.com/chili-chip/citsy) (headless Bitsy runtime, sibling checkout or FetchContent) |
 | **Power & battery** | Onboard LiPo header on the RP2350 Plus. Charge is sampled with Pico SDK `adc_read()` on **GPIO26 / ADC0** through a 1/3 resistor divider |
 | **Audio** | 32blit PWM square-wave channels; master volume is `blit::volume` |
 | **Storage** | Bundled `.bitsy` assets in flash; extra games from filesystem / SD (`games/`); settings in 32blit save slot 0 |
@@ -55,8 +55,8 @@ citsy stays engine-only. This repository is the handheld host: it opens no windo
 | Host GCC/Clang | C++20, for the desktop SDL player |
 | [Pico SDK](https://github.com/raspberrypi/pico-sdk) | Sibling checkout at `../pico-sdk` |
 | [chili-chip 32blit-sdk](https://github.com/chili-chip/32blit-sdk) | Sibling at `../32blit-sdk`, or `32BLIT_DIR` |
-| [32blit tools](https://github.com/32blit/32blit-tools) | `pip install 32blit` (packs `assets.yml`) |
-| [citsy](https://github.com/TeriyakiGod/citsy) | Sibling at `../citsy`, or `-DCITSY_DIR=...` |
+| [32blit tools](https://github.com/32blit/32blit-tools) | `pip install 32blit "bitstring<5"` (packs `assets.yml`; bitstring 5 breaks the tools) |
+| [citsy](https://github.com/chili-chip/citsy) | Sibling at `../citsy`, or `-DCITSY_DIR=...`. Without one, CMake fetches the commit pinned in `CMakeLists.txt`. A local checkout is used as is and overrides the pin. |
 | SDL2, SDL2_image, SDL2_net | Desktop only |
 
 On Ubuntu / Debian:
@@ -66,7 +66,7 @@ sudo apt install git gcc g++ gcc-arm-none-eabi cmake make \
   python3 python3-pip python3-setuptools \
   libsdl2-dev libsdl2-image-dev libsdl2-net-dev unzip
 
-python3 -m pip install --user 32blit
+python3 -m pip install --user 32blit "bitstring<5"
 ```
 
 Recommended layout:
@@ -76,7 +76,7 @@ project_root/
 ├── 32blit-sdk/      # chili-chip/32blit-sdk
 ├── pico-sdk/
 ├── pico-extras/     # pulled by the 32blit Pico HAL as needed
-├── citsy/
+├── citsy/           # chili-chip/citsy (optional, pinned via FetchContent otherwise)
 └── citsy-32blit/    # this repository
 ```
 
