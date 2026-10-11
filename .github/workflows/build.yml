@@ -108,9 +108,10 @@ jobs:
           sudo apt update && sudo apt install ${{matrix.apt-packages}}
           if [ "${{matrix.use-pipx}}" = "true" ]; then
             pipx install 32blit
+            pipx inject --force 32blit "bitstring<5"
             echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           else
-            pip3 install 32blit
+            pip3 install 32blit "bitstring<5"
           fi
 
       - name: Install macOS deps
@@ -118,12 +119,13 @@ jobs:
         run: |
           brew install ${{matrix.brew-packages}}
           pipx install 32blit
+          pipx inject --force 32blit "bitstring<5"
 
       - name: Install Windows deps
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          python -m pip install 32blit
+          python -m pip install 32blit "bitstring<5"
 
       - name: Setup Emscripten cache
         if: matrix.name == 'Emscripten'
