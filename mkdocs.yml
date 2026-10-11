@@ -1,9 +1,9 @@
 site_name: Citsy-32blit Documentation
 site_description: Documentation for Citsy Bitsy Engine running on Waveshare RP2350 Plus & 32blit SDK
 site_author: TeriyakiGod
-site_url: https://TeriyakiGod.github.io/citsy-32blit/docs/
-repo_url: https://github.com/TeriyakiGod/citsy-32blit
-repo_name: TeriyakiGod/citsy-32blit
+site_url: https://chili-chip.github.io/citsy-32blit/docs/
+repo_url: https://github.com/chili-chip/citsy-32blit
+repo_name: chili-chip/citsy-32blit
 edit_uri: edit/main/docs/
 
 theme:
