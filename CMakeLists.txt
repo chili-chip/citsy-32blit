@@ -37,8 +37,9 @@ else()
   include(FetchContent)
   FetchContent_Declare(
     citsy
-    GIT_REPOSITORY https://github.com/TeriyakiGod/citsy.git
-    GIT_TAG        main
+    GIT_REPOSITORY https://github.com/chili-chip/citsy.git
+    # Pinned for reproducible builds; keep in sync with .github/workflows/build.yml.
+    GIT_TAG        59fadd332f69d815cc7bf64be664b6757b6d2e79
   )
   FetchContent_MakeAvailable(citsy)
 endif()

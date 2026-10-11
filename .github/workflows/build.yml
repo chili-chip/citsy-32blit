@@ -84,7 +84,9 @@ jobs:
       - name: Checkout citsy
         uses: actions/checkout@v7
         with:
-          repository: TeriyakiGod/citsy
+          repository: chili-chip/citsy
+          # Same pin as GIT_TAG in CMakeLists.txt.
+          ref: 59fadd332f69d815cc7bf64be664b6757b6d2e79
           path: citsy
 
       - name: Checkout Pico SDK
