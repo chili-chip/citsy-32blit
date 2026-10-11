@@ -22,7 +22,7 @@ mkdocs serve
 - [32blit SDK](https://github.com/chili-chip/32blit-sdk) (sibling checkout at `../32blit-sdk`, or set `32BLIT_DIR`)
 - [32blit tools](https://github.com/32blit/32blit-tools): `pip install 32blit`
 - SDL2, SDL2_image, SDL2_net (desktop)
-- A [citsy](https://github.com/TeriyakiGod/citsy) checkout (sibling at `../citsy`, or `-DCITSY_DIR=...`)
+- A [citsy](https://github.com/chili-chip/citsy) checkout (sibling at `../citsy`, or `-DCITSY_DIR=...`). Without one, CMake fetches the pinned commit from `CMakeLists.txt`.
 
 ## Desktop build
 
