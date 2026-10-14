@@ -35,7 +35,7 @@ flowchart TB
 `scan_games()` in `game.cpp` builds a fixed-capacity list (`kMaxGames = 32`):
 
 1. **Bundled ROM** — `assets.yml` packs `mossland.bitsy` and `sandbox.bitsy` as raw binaries. `File::add_buffer_file` registers them so 32blit `File` I/O works on-device.
-2. **Filesystem / SD** — `list_files` on `""`, `"."`, and `"games/"` for `*.bitsy`. Titles are taken from the first non-comment Bitsy line (markup such as `{rbw}` stripped).
+2. **Filesystem** — `list_files` on `"bitsy-games"`, `""` and `"."` for `*.bitsy` (case-insensitive), sorted by name. `bitsy-games/` is created on first run. Only the first 512 bytes of each file are read to find its title. Titles are taken from the first non-comment Bitsy line (markup such as `{rbw}` stripped).
 3. **Launch path** — `get_launch_path()` skips the menu and calls `start_game()` once.
 
 `start_game()` reads the file into a `std::string`, then:
@@ -120,8 +120,9 @@ stateDiagram-v2
 `LauncherUI::draw_main_menu` is a vertical carousel in the 128×128 canvas:
 
 - Status bar (see below).
-- One row per game (cart icon hashed from the title, label, `01/NN ROM` or `SD`).
-- A **Settings** gear row after the last game.
+- One row per game (cart icon hashed from the title, label, `01/NN ROM` or `DRIVE`).
+- A **Settings** gear row after the last game, only when the firmware has no system settings (desktop). On ChiliChip OS the HOME system menu covers volume and brightness.
+- When no game came from the drive, a hint under the list names the `bitsy-games/` folder.
 - Footer: `A play   X set   ^v`.
 
 D-pad up/down uses hold-repeat (220 ms delay, 85 ms period) and a 1 px bounce on the selected row. **A** starts the selected `.bitsy` or opens Settings. Empty lists still show Settings and a “No .bitsy files” hint.

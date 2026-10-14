@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdint>
 #include <fstream>
 #include <optional>
 #include <sstream>
@@ -20,7 +21,14 @@ using namespace blit;
 
 namespace {
 
-constexpr int kMaxGames = 32;
+constexpr int kMaxGames = 128;
+
+// Folder at the root of the console's drive (CHILICHIP) that players drop
+// .bitsy files into. On desktop it sits next to the executable.
+constexpr const char* kGamesDir = "bitsy-games";
+
+// Enough of a .bitsy file to find its title line.
+constexpr uint32_t kTitlePeekBytes = 512;
 
 CitsyBlitHost g_host;
 std::optional<citsy::Engine> g_engine;
@@ -130,10 +138,10 @@ void reset_repeats() {
     return std::string(fallback);
 }
 
-[[nodiscard]] std::string read_file_text(const std::string& path) {
+[[nodiscard]] std::string read_file_text(const std::string& path, uint32_t max_len = UINT32_MAX) {
     File f(path);
     if (f.is_open()) {
-        const uint32_t len = f.get_length();
+        const uint32_t len = std::min(f.get_length(), max_len);
         std::string text(len, '\0');
         if (len > 0) {
             f.read(0, len, text.data());
@@ -143,6 +151,12 @@ void reset_repeats() {
 
     std::ifstream in(path);
     if (!in) return {};
+    if (max_len != UINT32_MAX) {
+        std::string text(max_len, '\0');
+        in.read(text.data(), max_len);
+        text.resize(static_cast<std::size_t>(in.gcount()));
+        return text;
+    }
     std::ostringstream buf;
     buf << in.rdbuf();
     return buf.str();
@@ -161,6 +175,10 @@ void scan_directory(const std::string& dir) {
         if (info.flags & FileFlags::directory) return false;
         return has_bitsy_ext(info.name);
     });
+    // Directory order on FAT is copy order; list games alphabetically.
+    std::sort(files.begin(), files.end(), [](const FileInfo& a, const FileInfo& b) {
+        return a.name < b.name;
+    });
     for (const auto& info : files) {
         std::string path = info.name;
         if (!dir.empty() && dir != "/" && dir != ".") {
@@ -168,7 +186,9 @@ void scan_directory(const std::string& dir) {
             if (path.back() != '/') path += '/';
             path += info.name;
         }
-        const std::string text = read_file_text(path);
+        // Only the head of the file: a whole game can be tens of KB and the
+        // console has 448 KB of RAM for everything.
+        const std::string text = read_file_text(path, kTitlePeekBytes);
         std::string fallback = info.name;
         if (fallback.size() > 6) fallback.resize(fallback.size() - 6);
         add_game(path, extract_title(text, fallback), false);
@@ -185,13 +205,30 @@ void scan_games() {
     add_game("mossland.bitsy", "Mossland", true);
     add_game("sandbox.bitsy", "Sandbox", true);
 
+    // Create the folder on first run so it is already on the drive the
+    // first time the player plugs the console in.
+    if (!directory_exists(kGamesDir)) {
+        create_directory(kGamesDir);
+    }
+
+    scan_directory(kGamesDir);
     scan_directory("");
     scan_directory(".");
-    scan_directory("games");
+}
+
+[[nodiscard]] int drive_game_count() {
+    return static_cast<int>(std::count_if(g_games.begin(), g_games.end(),
+        [](const GameEntry& g) { return !g.bundled; }));
+}
+
+/// On ChiliChip OS the HOME system menu owns volume and brightness, so the
+/// launcher has no Settings row.
+[[nodiscard]] bool has_settings() {
+    return !g_hw.system_managed();
 }
 
 [[nodiscard]] int menu_rows() {
-    return static_cast<int>(g_games.size()) + 1;
+    return static_cast<int>(g_games.size()) + (has_settings() ? 1 : 0);
 }
 
 void enter_main_menu() {
@@ -253,7 +290,7 @@ void restart_game() {
 
 void activate_menu_item() {
     const int n = static_cast<int>(g_games.size());
-    if (g_selected == n) {
+    if (has_settings() && g_selected == n) {
         g_settings_row = 0;
         g_state = SystemState::Settings;
         reset_repeats();
@@ -281,7 +318,7 @@ void update_main_menu(uint32_t time) {
     if (buttons.released & Button::A) {
         activate_menu_item();
     }
-    if (buttons.released & (Button::X | Button::MENU)) {
+    if (has_settings() && (buttons.released & (Button::X | Button::MENU))) {
         g_settings_row = 0;
         g_state = SystemState::Settings;
         reset_repeats();
@@ -427,7 +464,9 @@ void render(uint32_t time) {
                 g_games.empty() ? nullptr : g_games.data(),
                 static_cast<int>(g_games.size()),
                 g_selected,
-                time);
+                has_settings(),
+                drive_game_count(),
+                kGamesDir);
             break;
     }
 

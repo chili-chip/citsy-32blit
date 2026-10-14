@@ -1,5 +1,5 @@
 title: citsy
-description: Bitsy player with a 128x128 retro launcher
+description: Plays Bitsy games. Copy .bitsy files into the bitsy-games folder on the console's drive.
 author: TeriyakiGod
 splash:
   file: assets/no-image.png

@@ -1,5 +1,8 @@
 # Hardware & Pico SDK integration
 
+!!! note "ChiliChip OS"
+    When `blit::get_system_settings()` succeeds (the ChiliChip OS loader, or a standalone build on an API 0.3+ SDK), the firmware already applies volume and brightness to every game and samples the battery. `HardwareStatus` then touches no hardware: it reads `blit::get_battery_level()` and `blit::is_usb_connected()`, and the launcher hides Settings. Everything below applies only when that API is missing.
+
 citsy-32blit never talks to the OLED, ADC, or PWM from the engine. The chili-chip 32blit HAL owns the display and audio; this player samples battery voltage and applies launcher settings on top of that HAL.
 
 All drawing still goes through `blit::screen`, `blit::Pen`, `blit::Rect`, and `blit::Point`. Pico SDK calls (`adc_read()`, `pwm_set_gpio_level()`) live only in `hardware.cpp`, compiled when `PICO_ON_DEVICE` is set.

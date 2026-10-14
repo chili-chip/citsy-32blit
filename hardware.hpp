@@ -4,7 +4,12 @@
 
 /// Persistent launcher preferences and RP2350 telemetry.
 ///
-/// Volume is applied through `blit::volume`. Brightness uses GPIO PWM when a
+/// On firmware with the system API (ChiliChip OS loader, or a standalone
+/// VGC build with API 0.3+), the firmware owns volume, brightness and the
+/// battery reading: `system_managed()` is true, nothing here touches the
+/// hardware, and the player changes them from the HOME system menu.
+///
+/// Otherwise volume is applied through `blit::volume`. Brightness uses GPIO PWM when a
 /// dedicated backlight pin is available, SSD1351 master contrast on the OLED,
 /// and a software veil on desktop SDL (no panel registers).
 class HardwareStatus {
@@ -35,6 +40,9 @@ public:
     /// master contrast (OLED) and the veil would only reintroduce PWM flicker.
     [[nodiscard]] bool needs_software_veil() const;
 
+    /// The firmware applies system volume and brightness to every game.
+    [[nodiscard]] bool system_managed() const { return system_managed_; }
+
 private:
     static constexpr uint32_t kMagic = 0x43535431; // 'CST1'
     static constexpr int kSaveSlot = 0;
@@ -59,5 +67,6 @@ private:
     bool on_usb_ = true;
     bool battery_known_ = false;
     bool adc_ready_ = false;
+    bool system_managed_ = false;
     uint32_t last_sample_ms_ = 0;
 };
