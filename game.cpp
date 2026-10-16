@@ -489,7 +489,7 @@ void render(uint32_t time) {
         case SystemState::MainMenu:
         default:
             g_ui.draw_bezel();
-            g_ui.draw_status_bar("CITSY", g_hw, time);
+            g_ui.draw_status_bar("BITSY", g_hw, time);
             g_ui.draw_main_menu(
                 g_games.empty() ? nullptr : g_games.data(),
                 static_cast<int>(g_games.size()),

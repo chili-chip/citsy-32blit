@@ -87,7 +87,7 @@ citsy installs on ChiliChip OS as a hidden app (`category: handler`, `filetypes:
 
    This writes `out/build/vgc-blit/citsy-32blit.blit`.
 2. Plug the console in while the home screen is showing. A drive named **CHILICHIP** appears.
-3. Copy `citsy-32blit.blit` to the top of the drive and eject it. The console installs citsy. It is listed under **Settings → Games** (where it can be deleted), not on the home screen.
+3. Copy `citsy-32blit.blit` to the top of the drive and eject it. The console installs citsy. It shows up as **Bitsy** under **Settings → Installed software** (where it can be deleted), not on the home screen.
 4. Copy your `.bitsy` files into a `bitsy-games` folder on the drive (any folder at the top level, or the top of the drive, works), then eject. The OS installer only picks up `.blit` files, so `.bitsy` files stay where you put them.
 5. Each game appears on the home screen as a card titled with its file name. Pick it and press **A**. citsy opens straight into the game. **Exit** in the MENU pause overlay, or reaching an ending, returns to the home screen.
 
