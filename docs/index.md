@@ -99,7 +99,7 @@ cmake --preset vgc-blit
 cmake --build --preset vgc-blit
 ```
 
-Copy `out/build/vgc-blit/citsy-32blit.blit` to the top of the console's **CHILICHIP** drive and eject; the loader installs it onto the home screen. Then copy `.bitsy` files into `bitsy-games/` on the same drive, eject, and open citsy. CI uploads the `.blit` as the `citsy-blit` artifact and attaches it to releases.
+Copy `out/build/vgc-blit/citsy-32blit.blit` to the top of the console's **CHILICHIP** drive and eject; the loader installs it. citsy is a hidden handler app (`category: handler`, `filetypes: bits`), so it gets no tile of its own. Copy `.bitsy` files into `bitsy-games/` on the same drive and eject: the home screen shows a card per file and opens it with citsy, which returns home with `blit::quit_to_home()` when you exit the game. CI uploads the `.blit` as the `citsy-blit` artifact and attaches it to releases.
 
 On ChiliChip OS the firmware applies volume and brightness to every game and HOME opens the system menu, so the launcher hides its own Settings row and reads the battery from `blit::get_battery_level()`.
 

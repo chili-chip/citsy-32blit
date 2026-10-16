@@ -76,7 +76,7 @@ On the console, ChiliChip OS owns volume, brightness and the battery reading (`b
 
 ## ChiliChip OS (VGC Zero)
 
-citsy installs on ChiliChip OS like any other game, then plays the `.bitsy` files you put on the console.
+citsy installs on ChiliChip OS as a hidden app (`category: handler`, `filetypes: bits` in `metadata.yml`). It doesn't get a tile on the home screen. Instead, the home screen shows a card for every `.bitsy` file on the console and plays it with citsy. This needs a ChiliChip OS loader and home screen with handler support (chili-chip/32blit-sdk).
 
 1. Build the installable `.blit` (or download `citsy-blit` from the CI run or the release):
 
@@ -87,9 +87,11 @@ citsy installs on ChiliChip OS like any other game, then plays the `.bitsy` file
 
    This writes `out/build/vgc-blit/citsy-32blit.blit`.
 2. Plug the console in while the home screen is showing. A drive named **CHILICHIP** appears.
-3. Copy `citsy-32blit.blit` to the top of the drive and eject it. The console installs citsy and it appears on the home screen.
-4. Copy your `.bitsy` files into the `bitsy-games` folder on the drive (create it if citsy has not run yet), then eject. The OS installer only picks up `.blit` files, so `.bitsy` files stay where you put them.
-5. Open citsy from the home screen, pick a game and press **A**.
+3. Copy `citsy-32blit.blit` to the top of the drive and eject it. The console installs citsy. It is listed under **Settings → Games** (where it can be deleted), not on the home screen.
+4. Copy your `.bitsy` files into a `bitsy-games` folder on the drive (any folder at the top level, or the top of the drive, works), then eject. The OS installer only picks up `.blit` files, so `.bitsy` files stay where you put them.
+5. Each game appears on the home screen as a card titled with its file name. Pick it and press **A**. citsy opens straight into the game. **Exit** in the MENU pause overlay, or reaching an ending, returns to the home screen.
+
+citsy's own game list only shows when it is started without a file: on desktop, or on a loader without handler support.
 
 The drive is read-only to the computer while a game (citsy included) is running, so copy files while the home screen is showing. Build with a 32blit SDK at least as new as the console's loader expects; "Needs a system update" on install means the loader is older than the SDK.
 

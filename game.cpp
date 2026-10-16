@@ -7,6 +7,8 @@
 
 #include <citsy/engine.hpp>
 
+#include "engine/api_version.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
@@ -20,6 +22,15 @@
 using namespace blit;
 
 namespace {
+
+// blit::quit_to_home() arrived in API 0.6 with ChiliChip OS handler apps.
+[[nodiscard]] bool return_to_home() {
+#if BLIT_API_VERSION_MAJOR > 0 || BLIT_API_VERSION_MINOR >= 6
+    return blit::quit_to_home();
+#else
+    return false;
+#endif
+}
 
 constexpr int kMaxGames = 128;
 
@@ -39,6 +50,11 @@ SystemState g_state = SystemState::MainMenu;
 std::string g_error;
 std::vector<GameEntry> g_games;
 std::string g_current_path;
+
+// Opened by ChiliChip OS for one .bitsy file: leaving the game goes back to
+// the home screen instead of the launcher list.
+bool g_opened_from_home = false;
+bool g_quitting = false;
 std::string g_current_label;
 
 int g_selected = 0;
@@ -234,6 +250,10 @@ void scan_games() {
 void enter_main_menu() {
     g_engine.reset();
     g_host.stop_audio();
+    if (g_opened_from_home && return_to_home()) {
+        g_quitting = true;
+        return;
+    }
     g_state = SystemState::MainMenu;
     g_error.clear();
     reset_repeats();
@@ -425,11 +445,21 @@ void init() {
 
     const char* launch = get_launch_path();
     if (launch && launch[0] != '\0') {
-        start_game(launch, launch);
+        g_opened_from_home = true;
+        std::string name = launch;
+        name = name.substr(name.find_last_of('/') + 1);
+        if (has_bitsy_ext(name)) name.resize(name.size() - 6);
+        start_game(launch, extract_title(read_file_text(launch, kTitlePeekBytes), name));
     }
 }
 
 void render(uint32_t time) {
+    if (g_quitting) {
+        screen.pen = Pen(0, 0, 0);
+        screen.clear();
+        return;
+    }
+
     screen.alpha = 255;
     screen.mask = nullptr;
     screen.clip = Rect(0, 0, screen.bounds.w, screen.bounds.h);
@@ -476,6 +506,8 @@ void render(uint32_t time) {
 }
 
 void update(uint32_t time) {
+    if (g_quitting) return;
+
     const double dt = (g_last_time == 0)
         ? 16.667
         : static_cast<double>(time - g_last_time);
