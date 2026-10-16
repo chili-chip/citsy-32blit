@@ -24,7 +24,10 @@ public:
 
     void draw_bezel();
     void draw_status_bar(std::string_view title, const HardwareStatus& hw, uint32_t time_ms);
-    void draw_main_menu(const GameEntry* games, int game_count, int selected, uint32_t time_ms);
+    /// `drive_games` counts the entries that came from the drive; when it is
+    /// zero the list shows where to put .bitsy files.
+    void draw_main_menu(const GameEntry* games, int game_count, int selected,
+                        bool show_settings, int drive_games, std::string_view games_dir);
     void draw_settings(const HardwareStatus& hw, int selected_row);
     void draw_pause_overlay(int selected, std::string_view game_title);
     void draw_error(std::string_view message);

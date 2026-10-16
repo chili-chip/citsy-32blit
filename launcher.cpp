@@ -188,8 +188,9 @@ void LauncherUI::draw_footer(std::string_view hint) {
     text(hint, at(3, kSize - kFooterH + 3), kMuted);
 }
 
-void LauncherUI::draw_main_menu(const GameEntry* games, int game_count, int selected, uint32_t /*time_ms*/) {
-    const int rows = game_count + 1; // last row is Settings
+void LauncherUI::draw_main_menu(const GameEntry* games, int game_count, int selected,
+                                bool show_settings, int drive_games, std::string_view games_dir) {
+    const int rows = game_count + (show_settings ? 1 : 0); // last row is Settings
     const int list_top = kStatusH + 2;
     const int list_h = kSize - kStatusH - kFooterH - 3;
     const int row_h = 16;
@@ -207,7 +208,7 @@ void LauncherUI::draw_main_menu(const GameEntry* games, int game_count, int sele
         const int idx = start + i;
         const int y = list_top + i * row_h + ((idx == selected && bouncing) ? bounce_dir_ : 0);
         const bool is_sel = idx == selected;
-        const bool is_settings = idx == game_count;
+        const bool is_settings = show_settings && idx == game_count;
 
         if (is_sel) {
             fill(box(2, y, kSize - 4, row_h - 1), pressed ? kSelectHot : kSelect);
@@ -223,21 +224,27 @@ void LauncherUI::draw_main_menu(const GameEntry* games, int game_count, int sele
             screen.pen = is_sel ? kWhite : kText;
             screen.text(g.label, minimal_font, box(20, y + 1, 104, 8), true);
 
-            char meta[16];
+            char meta[24];
             const int cur = std::min(99, idx + 1);
             const int tot = std::min(99, std::max(1, game_count));
             std::snprintf(meta, sizeof(meta), "%02d/%02d %s",
-                          cur, tot, g.bundled ? "ROM" : "SD");
+                          cur, tot, g.bundled ? "ROM" : "DRIVE");
             text(meta, at(20, y + 8), is_sel ? kAccent : kMuted);
         }
     }
 
-    if (rows == 1 && game_count == 0) {
-        text("No .bitsy files", at(20, list_top + 22), kMuted);
-        text("drop onto SD", at(20, list_top + 32), kMuted);
+    // Room under the list: say where the player's own games go.
+    const int hint_y = list_top + std::min(rows, visible) * row_h + 4;
+    if (drive_games == 0 && hint_y + 20 <= kSize - kFooterH) {
+        text("Add .bitsy files to", at(6, hint_y), kMuted);
+        char dir[24];
+        std::snprintf(dir, sizeof(dir), "%.*s/",
+                      static_cast<int>(std::min<std::size_t>(games_dir.size(), sizeof(dir) - 2)),
+                      games_dir.data());
+        text(dir, at(6, hint_y + 10), kAccent);
     }
 
-    draw_footer("A play   X set   ^v");
+    draw_footer(show_settings ? "A play   X set   ^v" : "A play   ^v select");
 }
 
 void LauncherUI::draw_slider(int y, std::string_view label, int steps, bool selected) {

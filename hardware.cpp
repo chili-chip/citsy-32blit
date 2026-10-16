@@ -9,7 +9,11 @@
 #include "hardware/adc.h"
 #include "hardware/gpio.h"
 #include "hardware/pwm.h"
+// Board pins. The .blit build (ChiliChip OS) does not expose the board
+// config, and leaves the hardware to the loader anyway.
+#if __has_include("config.h")
 #include "config.h"
+#endif
 #define CITSY_PICO_HW 1
 // chili-chip dbi_ssd1351.cpp. Weak so this player still links against an
 // SDK that does not yet export the symbol.
@@ -54,6 +58,13 @@ int clamp_steps(int steps) {
 } // namespace
 
 void HardwareStatus::init() {
+    blit::SystemSettings settings;
+    system_managed_ = blit::get_system_settings(settings);
+    if (system_managed_) {
+        sample_battery();
+        return;
+    }
+
 #ifdef CITSY_PICO_HW
     adc_init();
     adc_gpio_init(CITSY_BATTERY_ADC_PIN);
@@ -81,11 +92,13 @@ void HardwareStatus::update(uint32_t time_ms) {
 }
 
 void HardwareStatus::set_volume(int steps) {
+    if (system_managed_) return;
     volume_ = clamp_steps(steps);
     apply_volume();
 }
 
 void HardwareStatus::set_brightness(int steps) {
+    if (system_managed_) return;
     brightness_ = clamp_steps(steps);
     apply_brightness();
 }
@@ -96,6 +109,7 @@ void HardwareStatus::apply() {
 }
 
 void HardwareStatus::save() const {
+    if (system_managed_) return;
     Persist p{};
     p.magic = kMagic;
     p.volume = static_cast<uint8_t>(volume_);
@@ -112,6 +126,15 @@ void HardwareStatus::load() {
 }
 
 void HardwareStatus::sample_battery() {
+    if (system_managed_) {
+        const int level = blit::get_battery_level();
+        on_usb_ = blit::is_usb_connected();
+        battery_known_ = level >= 0;
+        battery_percent_ = battery_known_ ? std::clamp(level, 0, 100) : 100;
+        battery_volts_ = static_cast<float>(blit::get_battery_voltage()) / 1000.0f;
+        return;
+    }
+
 #ifdef CITSY_PICO_HW
     if (!adc_ready_) {
         on_usb_ = true;
@@ -158,6 +181,7 @@ void HardwareStatus::apply_volume() const {
 }
 
 bool HardwareStatus::needs_software_veil() const {
+    if (system_managed_) return false;
 #ifdef CITSY_PICO_HW
     if (backlight_pin() >= 0) {
         return false;

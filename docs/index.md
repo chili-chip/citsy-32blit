@@ -40,7 +40,7 @@ citsy stays engine-only. This repository is the handheld host: it opens no windo
 | **Engine** | [citsy](https://github.com/chili-chip/citsy) (headless Bitsy runtime, sibling checkout or FetchContent) |
 | **Power & battery** | Onboard LiPo header on the RP2350 Plus. Charge is sampled with Pico SDK `adc_read()` on **GPIO26 / ADC0** through a 1/3 resistor divider |
 | **Audio** | 32blit PWM square-wave channels; master volume is `blit::volume` |
-| **Storage** | Bundled `.bitsy` assets in flash; extra games from filesystem / SD (`games/`); settings in 32blit save slot 0 |
+| **Storage** | Bundled `.bitsy` assets in flash; extra games from `bitsy-games/` on the CHILICHIP drive; settings in 32blit save slot 0 |
 
 `blit::screen` is **128×128** on device (`DISPLAY_WIDTH` / `DISPLAY_HEIGHT` in the chili-chip VGC board config). All launcher chrome is authored in that coordinate space.
 
@@ -89,9 +89,23 @@ cmake --build --preset linux
 ./out/build/linux/citsy-32blit.elf
 ```
 
-The launcher lists bundled **Mossland** and **Sandbox**, plus any `*.bitsy` next to the binary or in `games/`. Press **A** to start a game.
+The launcher lists bundled **Mossland** and **Sandbox**, plus any `*.bitsy` in `bitsy-games/` (created on first run) or next to the binary. Press **A** to start a game.
 
-### Device (RP2350 / VGC)
+### ChiliChip OS (`.blit`)
+
+```bash
+cd citsy-32blit
+cmake --preset vgc-blit
+cmake --build --preset vgc-blit
+```
+
+Copy `out/build/vgc-blit/citsy-32blit.blit` to the top of the console's **CHILICHIP** drive and eject; the loader installs it. citsy is a hidden handler app (`category: handler`, `filetypes: bits`), so it gets no tile of its own. Copy `.bitsy` files into `bitsy-games/` on the same drive and eject: the home screen shows a card per file and opens it with citsy, which returns home with `blit::quit_to_home()` when you exit the game. CI uploads the `.blit` as the `citsy-blit` artifact and attaches it to releases.
+
+On ChiliChip OS the firmware applies volume and brightness to every game and HOME opens the system menu, so the launcher hides its own Settings row and reads the battery from `blit::get_battery_level()`.
+
+### Standalone device build (RP2350 / VGC)
+
+A standalone `.uf2` replaces ChiliChip OS; use it for SWD debugging.
 
 ```bash
 cd citsy-32blit
@@ -134,9 +148,9 @@ SWD flash (OpenOCD + CMSIS-DAP) is wired in `.vscode/tasks.json` against `out/bu
 | Move cursor / walk | D-pad | Arrows / WASD |
 | Confirm / interact | A | Z |
 | Back / cancel | B | X |
-| Settings | X or MENU (launcher) | C or Escape |
+| Settings (desktop only) | X or MENU (launcher) | C or Escape |
 | Pause overlay | MENU in-game | Escape or `2` |
-| Volume / brightness | Left / Right in Settings | Left / Right |
+| Volume / brightness | HOME system menu (ChiliChip OS) | Left / Right in Settings |
 
 !!! tip "Skip the launcher"
     Pass `--launch_path /path/to/game.bitsy` (desktop) to boot a file immediately, the same way the 32blit console launch path works.

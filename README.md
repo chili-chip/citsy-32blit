@@ -42,14 +42,14 @@ cmake --build build
 ./build/citsy-32blit.elf
 ```
 
-The launcher lists bundled games (`Mossland`, `Sandbox`) plus any `.bitsy` files next to the binary. A game is started only when you press **A**, or when a launch path is passed (see below).
+The launcher lists bundled games (`Mossland`, `Sandbox`) plus any `.bitsy` files in a `bitsy-games/` folder next to the binary (created on first run) or next to the binary itself. A game is started only when you press **A**, or when a launch path is passed (see below).
 
 ## Loading `.bitsy` files
 
 Games are plain-text Bitsy exports. This player loads them in three ways:
 
 1. **Bundled assets** — `assets/mossland.bitsy` and `assets/sandbox.bitsy` are packed into the binary by the 32blit asset tool (`assets.yml`, `type: raw/binary`). They are registered with `File::add_buffer_file` so they behave like real files.
-2. **Filesystem** — any `*.bitsy` next to the executable, or in a `games/` folder, appears in the launcher. On desktop the search path is the binary directory (`SDL_GetBasePath`). On device this includes the SD card when the chili-chip HAL mounts it.
+2. **Filesystem** — any `*.bitsy` in the `bitsy-games/` folder, or at the top of the storage, appears in the launcher, sorted by file name. On the console this is the **CHILICHIP** USB drive; on desktop it is the binary directory (`SDL_GetBasePath`). The launcher creates `bitsy-games/` on first run. Files show as `DRIVE` in the list, bundled games as `ROM`.
 3. **Launch path** — skip the menu and boot a file the same way the 32blit console does:
 
 ```bash
@@ -65,15 +65,39 @@ Author games at [bitsy.org](https://bitsy.org), export `.bitsy`, and drop the fi
 | Move cursor / walk | D-pad | Arrows / WASD |
 | Confirm / interact | A | Z |
 | Back / cancel | B | X |
-| Settings | X or MENU (from launcher) | C or Escape |
+| Settings (desktop only) | X or MENU (from launcher) | C or Escape |
 | Pause overlay (in game) | MENU | Escape or `2` |
-| Volume / brightness | Left / Right in Settings | Left / Right |
+| System menu (ChiliChip OS) | HOME (hold to quit to home) | — |
+| Volume / brightness | HOME system menu on the console; Left / Right in Settings on desktop | Left / Right |
 
 Pause overlay items: **Resume**, **Restart**, **Exit** (back to the launcher). MENU or B on the overlay resumes.
 
-Settings (volume and OLED/backlight brightness) are written to 32blit save slot 0 when you leave the screen. On RP2350, battery voltage is sampled from ADC0 (GPIO26) through a 1/3 divider.
+On the console, ChiliChip OS owns volume, brightness and the battery reading (`blit::get_system_settings()`, API 0.3+), so the launcher has no Settings row there and changes nothing on the hardware. On desktop, Settings (volume and a brightness veil) are written to 32blit save slot 0 when you leave the screen.
 
-## VGC Zero / device
+## ChiliChip OS (VGC Zero)
+
+citsy installs on ChiliChip OS as a hidden app (`category: handler`, `filetypes: bits` in `metadata.yml`). It doesn't get a tile on the home screen. Instead, the home screen shows a card for every `.bitsy` file on the console and plays it with citsy. This needs a ChiliChip OS loader and home screen with handler support (chili-chip/32blit-sdk).
+
+1. Build the installable `.blit` (or download `citsy-blit` from the CI run or the release):
+
+   ```bash
+   cmake --preset vgc-blit
+   cmake --build --preset vgc-blit
+   ```
+
+   This writes `out/build/vgc-blit/citsy-32blit.blit`.
+2. Plug the console in while the home screen is showing. A drive named **CHILICHIP** appears.
+3. Copy `citsy-32blit.blit` to the top of the drive and eject it. The console installs citsy. It shows up as **Bitsy** under **Settings → Installed software** (where it can be deleted), not on the home screen.
+4. Copy your `.bitsy` files into a `bitsy-games` folder on the drive (any folder at the top level, or the top of the drive, works), then eject. The OS installer only picks up `.blit` files, so `.bitsy` files stay where you put them.
+5. Each game appears on the home screen as a card titled with its file name. Pick it and press **A**. citsy opens straight into the game. **Exit** in the MENU pause overlay, or reaching an ending, returns to the home screen.
+
+citsy's own game list only shows when it is started without a file: on desktop, or on a loader without handler support.
+
+The drive is read-only to the computer while a game (citsy included) is running, so copy files while the home screen is showing. Build with a 32blit SDK at least as new as the console's loader expects; "Needs a system update" on install means the loader is older than the SDK.
+
+## Standalone VGC Zero build
+
+A standalone `.uf2` replaces ChiliChip OS on the console. It is handy for debugging over SWD; flash `blit-loader.uf2` (or `vgc-os-factory.uf2`) afterwards to get the home screen back.
 
 ```bash
 cmake --preset vgc
