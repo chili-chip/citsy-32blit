@@ -95,7 +95,7 @@ jobs:
         with:
           repository: chili-chip/citsy
           # Same pin as GIT_TAG in CMakeLists.txt.
-          ref: fcc00866bf76fb2bf7649871a1e0bd1258ebe3d3
+          ref: 8558e1f83b24deac229f7b881cb56f95978d4e02
           path: citsy
 
       - name: Checkout Pico SDK
