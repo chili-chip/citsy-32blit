@@ -425,6 +425,8 @@ void update_game(double dt) {
         open_pause();
         return;
     }
+    // citsy restarts the game itself after an ending, as Bitsy does, so this
+    // only catches a missing or stopped engine.
     if (!g_engine || !g_engine->is_running()) {
         enter_main_menu();
         return;
