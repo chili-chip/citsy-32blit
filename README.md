@@ -132,3 +132,15 @@ Optional compile definitions:
 States: `MainMenu` → `Settings` / `GameRunning` → `PauseOverlay`. Each frame the host reports `delta_time_ms()` and button state. The engine writes a 128×128 colour-index buffer (and two square-wave channels). `CitsyBlitHost::draw()` palettes that buffer and integer-scales it into the framebuffer (1× on the 128×128 OLED).
 
 The core library never links 32blit. See [citsy Host API](https://teriyakigod.github.io/citsy/host/).
+
+## Credits and licence
+
+MIT, see [LICENSE](LICENSE). Every build (desktop, web and console) links in other people's work, under these licences:
+
+| Part | Licence | Notice |
+|---|---|---|
+| [citsy](https://github.com/chili-chip/citsy) | MIT | [citsy LICENSE](https://github.com/chili-chip/citsy/blob/main/LICENSE) |
+| Bitsy's built-in fonts, inside citsy | MIT, © 2016-present Bitsy authors | Kept in the same citsy LICENSE |
+| [32blit SDK](https://github.com/32blit/32blit-sdk), via the [chili-chip fork](https://github.com/chili-chip/32blit-sdk) | MIT, © Pimoroni Ltd | [32blit-sdk LICENSE](https://github.com/chili-chip/32blit-sdk/blob/master/LICENSE) |
+
+Thanks to Adam Le Doux and the [Bitsy contributors](https://github.com/chili-chip/chili-creator/blob/main/docs/bitsy/CREDITS.md), and to Pimoroni and the 32blit contributors.
