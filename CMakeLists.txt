@@ -39,7 +39,7 @@ else()
     citsy
     GIT_REPOSITORY https://github.com/chili-chip/citsy.git
     # Pinned for reproducible builds; keep in sync with .github/workflows/build.yml.
-    GIT_TAG        8558e1f83b24deac229f7b881cb56f95978d4e02
+    GIT_TAG        b80cf9868ffe419c73197ddf61bf5ab019ed04e7
   )
   FetchContent_MakeAvailable(citsy)
 endif()
