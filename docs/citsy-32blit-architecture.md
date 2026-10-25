@@ -56,10 +56,10 @@ While `GameRunning`, each `update(time)`:
 
 1. Computes `dt` from 32blit `time` (ms).
 2. If **MENU** was released → `PauseOverlay` (engine is not stepped).
-3. If `!engine.is_running()` (Bitsy ending dismissed) → return to the launcher.
+3. If there is no engine, or it is not running → return to the launcher. An ending does not stop the engine: as in Bitsy, the next press after the ending text restarts the game from its title inside citsy.
 4. `g_host.set_delta(dt)` / `poll_input()` / `engine.update(g_host)` / `play_audio()`.
 
-`poll_input()` maps 32blit buttons onto citsy logical buttons. **MENU is captured** by the launcher (`menu_captured_ = true`) so the engine’s “MENU released → stop” path cannot kill the game out from under the pause overlay.
+`poll_input()` maps 32blit buttons onto citsy logical buttons. **MENU is captured** by the launcher (`menu_captured_ = true`) so MENU opens the pause overlay instead of reaching the engine, where releasing it would restart the game as in Bitsy.
 
 | Bitsy / citsy | 32blit |
 |---|---|
@@ -81,6 +81,8 @@ citsy always composites a **128×128 colour-index** video block (`citsy::kVideoS
 `draw()` then palettes `video_` onto `blit::screen` at 1× on the 128×128 panel. Avatar position, tile walls, items, and exits are entirely engine-side (`Engine::avatar_x/y`, `current_room_id()`, …). The host never interprets the map.
 
 Dialog and endings stay in citsy (`dialog_active()`, `dialog_line()`, `ending_active()`). The player only forwards A/B as Ok so the script interpreter can advance pages.
+
+Text is always drawn at LOREZ size: the textbox buffer is copied 1:1 onto the 128×128 frame, whatever `TXT_MODE` the game asks for. Bitsy's HIREZ text would need the game drawn at 2× or more, and the console screen draws it at 1×.
 
 See the [citsy Host API](https://teriyakigod.github.io/citsy/host/) for the buffer contract.
 

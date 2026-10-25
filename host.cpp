@@ -117,7 +117,7 @@ void CitsyBlitHost::log(std::string_view message) {
 
 void CitsyBlitHost::present(
     citsy::GraphicsMode /*gfx_mode*/,
-    citsy::TextMode /*txt_mode*/,
+    citsy::TextMode /*txt_mode*/,  // text is always LOREZ: drawn 1:1 on the 128×128 frame
     std::span<const citsy::Color> palette,
     std::span<const std::uint8_t> video,
     std::span<const std::uint8_t> /*map1*/,
